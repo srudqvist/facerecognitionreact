@@ -16,7 +16,7 @@ const setupClarifaiRequest = (imageUrl) => {
 	const APP_ID = "facial-recognition-app";
 	// Change these to whatever model and image URL you want to use
 	// const MODEL_ID = "face-detection";
-	const IMAGE_URL = "https://samples.clarifai.com/metro-north.jpg";
+	const IMAGE_URL = imageUrl;
 
 	const raw = JSON.stringify({
 		user_app_id: {
@@ -52,15 +52,42 @@ class App extends Component {
 		this.state = {
 			input: "",
 			imageUrl: "",
+			box: {},
 		};
 	}
+
 	onInputChange = (event) => {
 		this.setState({ input: event.target.value });
 	};
-	onButtonSubmit = (event) => {
-		console.log("Click");
-		let imageUrl = this.state.input;
+
+	calculateFaceLocation = (data) => {
+		const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+		const image = document.getElementById("inputImage");
+		const imgWidth = Number(image.width);
+		const imgHeight = Number(image.height);
+
+		let leftCol = face.left_col * imgWidth;
+		let rightCol = imgWidth - face.right_col * imgWidth;
+		let topRow = face.top_row * imgHeight;
+		let bottomRow = imgHeight - face.bottom_row * imgHeight;
+
+		let faceLocationData = {
+			leftCol: leftCol,
+			topRow: topRow,
+			rightCol: rightCol,
+			bottomRow: bottomRow,
+		};
+
+		return faceLocationData;
+	};
+
+	displayFaceBox = (box) => {
+		this.setState({ box: box });
+	};
+
+	onButtonSubmit = () => {
 		this.setState({ imageUrl: this.state.input });
+
 		// NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
 		// https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
 		// this will default to the latest version_id
@@ -68,13 +95,17 @@ class App extends Component {
 		fetch(
 			"https://api.clarifai.com/v2/models/" +
 				"face-detection" +
+				"/versions/" +
+				"6dc7e46bc9124c5c8824be4822abe105" +
 				// "/versions/" +
 				// MODEL_VERSION_ID +
 				"/outputs",
-			setupClarifaiRequest(imageUrl)
+			setupClarifaiRequest(this.state.input)
 		)
 			.then((response) => response.json())
-			.then((result) => console.log(result))
+			.then((result) =>
+				this.displayFaceBox(this.calculateFaceLocation(result))
+			)
 			.catch((error) => console.log("error", error));
 	};
 
@@ -96,7 +127,10 @@ class App extends Component {
 					onButtonSubmit={this.onButtonSubmit}
 				/>
 
-				<FaceRecognition imageUrl={this.state.imageUrl} />
+				<FaceRecognition
+					imageUrl={this.state.imageUrl}
+					box={this.state.box}
+				/>
 			</div>
 		);
 	}
