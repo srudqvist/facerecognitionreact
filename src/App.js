@@ -5,7 +5,9 @@ import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
 import ParticlesBg from "particles-bg";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import SignIn from "./components/SignIn/SignIn";
 import { Component } from "react";
+import SignUp from "./components/SignUp/SignUp";
 
 const setupClarifaiRequest = (imageUrl) => {
 	// Your PAT (Personal Access Token) can be found in the portal under Authentification
@@ -53,6 +55,8 @@ class App extends Component {
 			input: "",
 			imageUrl: "",
 			box: {},
+			route: "signin",
+			isSignedIn: false,
 		};
 	}
 
@@ -109,7 +113,16 @@ class App extends Component {
 			.catch((error) => console.log("error", error));
 	};
 
+	onRouteChange = (route) => {
+		if (route === "signout") {
+			this.setState({ isSignedIn: false });
+		} else if (route === "home") {
+			this.setState({ isSignedIn: true });
+		}
+		this.setState({ route: route });
+	};
 	render() {
+		const { isSignedIn, imageUrl, route, box } = this.state;
 		return (
 			<div className="App">
 				<ParticlesBg
@@ -118,19 +131,27 @@ class App extends Component {
 					num={100}
 					color="#FFFFFF"
 				/>
-				<Navigation />
 
-				<Logo />
-				<Rank />
-				<ImageLinkForm
-					onInputChange={this.onInputChange}
-					onButtonSubmit={this.onButtonSubmit}
+				<Navigation
+					isSignedIn={isSignedIn}
+					onRouteChange={this.onRouteChange}
 				/>
+				{route === "home" ? (
+					<div>
+						<Logo />
+						<Rank />
+						<ImageLinkForm
+							onInputChange={this.onInputChange}
+							onButtonSubmit={this.onButtonSubmit}
+						/>
 
-				<FaceRecognition
-					imageUrl={this.state.imageUrl}
-					box={this.state.box}
-				/>
+						<FaceRecognition imageUrl={imageUrl} box={box} />
+					</div>
+				) : route === "signin" ? (
+					<SignIn onRouteChange={this.onRouteChange} />
+				) : (
+					<SignUp onRouteChange={this.onRouteChange} />
+				)}
 			</div>
 		);
 	}
