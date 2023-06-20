@@ -64,17 +64,31 @@ class App extends Component {
 		this.setState({ input: event.target.value });
 	};
 
+	/**
+	 * Calculates the pixel coordinates of the bounding box for a detected face
+	 * within the input image.
+	 *
+	 * @param {Object} data - The data object containing the face detection results.
+	 * @returns {Object} An object representing the face location data with pixel coordinates.
+	 */
 	calculateFaceLocation = (data) => {
+		// Extract the bounding box coordinates of the detected face
 		const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+
+		// Get the reference to the input image element
 		const image = document.getElementById("inputImage");
+
+		// Obtain the width and height of the input image
 		const imgWidth = Number(image.width);
 		const imgHeight = Number(image.height);
 
+		// Calculate the pixel coordinates of the bounding box relative to the image size
 		let leftCol = face.left_col * imgWidth;
 		let rightCol = imgWidth - face.right_col * imgWidth;
 		let topRow = face.top_row * imgHeight;
 		let bottomRow = imgHeight - face.bottom_row * imgHeight;
 
+		// Create an object containing the calculated face location data
 		let faceLocationData = {
 			leftCol: leftCol,
 			topRow: topRow,
@@ -82,6 +96,7 @@ class App extends Component {
 			bottomRow: bottomRow,
 		};
 
+		// Return the face location data
 		return faceLocationData;
 	};
 
