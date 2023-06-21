@@ -104,23 +104,52 @@ class App extends Component {
 		this.setState({ box: box });
 	};
 
+	// /**
+	//  * Handles the submission of the button to detect faces in the input image.
+	//  */
+	// onButtonSubmit = () => {
+	// 	this.setState({ imageUrl: this.state.input });
+
+	// 	// NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
+	// 	// https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
+	// 	// this will default to the latest version_id
+
+	// 	fetch(
+	// 		"https://api.clarifai.com/v2/models/" +
+	// 			"face-detection" +
+	// 			"/versions/" +
+	// 			"6dc7e46bc9124c5c8824be4822abe105" +
+	// 			// "/versions/" +
+	// 			// MODEL_VERSION_ID +
+	// 			"/outputs",
+	// 		setupClarifaiRequest(this.state.input)
+	// 	)
+	// 		.then((response) => response.json())
+	// 		.then((result) =>
+	// 			this.displayFaceBox(this.calculateFaceLocation(result))
+	// 		)
+	// 		.catch((error) => console.log("error", error));
+	// };
+
+	//
+	// Handles the submission of the button to detect faces in the input image.
+	//
 	onButtonSubmit = () => {
+		// Update the state with the input image URL
 		this.setState({ imageUrl: this.state.input });
 
 		// NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
-		// https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
-		// this will default to the latest version_id
-
-		fetch(
+		// Specify the URL for the face detection API endpoint
+		// This will default to the latest version_id
+		const apiEndpoint =
 			"https://api.clarifai.com/v2/models/" +
-				"face-detection" +
-				"/versions/" +
-				"6dc7e46bc9124c5c8824be4822abe105" +
-				// "/versions/" +
-				// MODEL_VERSION_ID +
-				"/outputs",
-			setupClarifaiRequest(this.state.input)
-		)
+			"face-detection" +
+			"/versions/" +
+			"6dc7e46bc9124c5c8824be4822abe105" +
+			"/outputs";
+
+		// Make a fetch request to the face detection API
+		fetch(apiEndpoint, setupClarifaiRequest(this.state.input))
 			.then((response) => response.json())
 			.then((result) =>
 				this.displayFaceBox(this.calculateFaceLocation(result))
