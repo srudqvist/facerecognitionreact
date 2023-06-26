@@ -60,6 +60,12 @@ class App extends Component {
 		};
 	}
 
+	componentDidMount() {
+		fetch("http://127.0.0.1:3001/")
+			.then((response) => response.json())
+			.then(console.log);
+	}
+
 	onInputChange = (event) => {
 		this.setState({ input: event.target.value });
 	};
