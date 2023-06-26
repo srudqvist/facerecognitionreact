@@ -177,9 +177,24 @@ class App extends Component {
 		// Make a fetch request to the face detection API
 		fetch(apiEndpoint, setupClarifaiRequest(this.state.input))
 			.then((response) => response.json())
-			.then((result) =>
-				this.displayFaceBox(this.calculateFaceLocation(result))
-			)
+			.then((result) => {
+				if (result) {
+					fetch("http://127.0.0.1:3001/image", {
+						method: "PUT",
+						headers: { "content-type": "application/json" },
+						body: JSON.stringify({ id: this.state.user.id }),
+					})
+						.then((response) => response.json())
+						.then((count) =>
+							this.setState(
+								Object.assign(this.state.user, {
+									entries: count,
+								})
+							)
+						);
+				}
+				this.displayFaceBox(this.calculateFaceLocation(result));
+			})
 			.catch((error) => console.log("error", error));
 	};
 
